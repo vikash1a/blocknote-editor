@@ -52,8 +52,3 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish to VS Code Marketplace
-        if: steps.check.outputs.exists == 'false' && secrets.VSCE_PAT != ''
-        run: npx vsce publish --no-dependencies
-        env:
-          VSCE_PAT: ${{ secrets.VSCE_PAT }}
