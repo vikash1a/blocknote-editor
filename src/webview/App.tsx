@@ -12,33 +12,55 @@ const vscode = acquireVsCodeApi();
 export default function App() {
   const editor = useCreateBlockNote();
   const isInternalUpdate = useRef(false);
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Receive file content from extension host and load into editor
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
       const message = event.data;
-      if (message.type === 'update') {
-        isInternalUpdate.current = true;
-        try {
-          const blocks = await editor.tryParseMarkdownToBlocks(message.content as string);
-          editor.replaceBlocks(editor.document, blocks);
-        } finally {
+      if (message.type !== 'update') {
+        return;
+      }
+
+      // Cancel any pending save to avoid overwriting the incoming content
+      if (saveTimer.current) {
+        clearTimeout(saveTimer.current);
+        saveTimer.current = null;
+      }
+
+      isInternalUpdate.current = true;
+      try {
+        const blocks = await editor.tryParseMarkdownToBlocks(message.content as string);
+        editor.replaceBlocks(editor.document, blocks);
+      } finally {
+        // Keep the flag true briefly to absorb the onChange BlockNote fires
+        // after replaceBlocks before clearing it
+        setTimeout(() => {
           isInternalUpdate.current = false;
-        }
+        }, 150);
       }
     };
 
     window.addEventListener('message', handleMessage);
+
+    // Tell the extension we're mounted and ready to receive content
+    vscode.postMessage({ type: 'ready' });
+
     return () => window.removeEventListener('message', handleMessage);
   }, [editor]);
 
-  // Send updated markdown back to extension host on every change
   const handleChange = useCallback(async () => {
     if (isInternalUpdate.current) {
       return;
     }
-    const markdown = await editor.blocksToMarkdownLossy(editor.document);
-    vscode.postMessage({ type: 'save', content: markdown });
+
+    // Debounce: wait for the user to pause typing before saving
+    if (saveTimer.current) {
+      clearTimeout(saveTimer.current);
+    }
+    saveTimer.current = setTimeout(async () => {
+      const markdown = await editor.blocksToMarkdownLossy(editor.document);
+      vscode.postMessage({ type: 'save', content: markdown });
+    }, 300);
   }, [editor]);
 
   return (

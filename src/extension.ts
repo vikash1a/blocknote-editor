@@ -27,6 +27,9 @@ class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
 
     webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview);
 
+    // Track whether a change originated from the webview to prevent echo loop
+    let isWebviewSaving = false;
+
     const sendContent = () => {
       webviewPanel.webview.postMessage({
         type: 'update',
@@ -34,29 +37,47 @@ class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
       });
     };
 
-    // Handle save messages from the webview
     webviewPanel.webview.onDidReceiveMessage(async (message) => {
-      if (message.type === 'save') {
-        const edit = new vscode.WorkspaceEdit();
-        edit.replace(
-          document.uri,
-          new vscode.Range(0, 0, document.lineCount, 0),
-          message.content
-        );
-        await vscode.workspace.applyEdit(edit);
+      if (message.type === 'ready') {
+        // Webview signals it's mounted and listening — safe to send content now
+        sendContent();
+      } else if (message.type === 'save') {
+        isWebviewSaving = true;
+        try {
+          const edit = new vscode.WorkspaceEdit();
+          const fullRange = new vscode.Range(
+            new vscode.Position(0, 0),
+            new vscode.Position(document.lineCount, 0)
+          );
+          edit.replace(document.uri, fullRange, message.content);
+          await vscode.workspace.applyEdit(edit);
+        } finally {
+          isWebviewSaving = false;
+        }
       }
     });
 
-    // Sync external changes back to the webview
+    // Only forward external changes — not ones we just applied from the webview
     const changeSubscription = vscode.workspace.onDidChangeTextDocument((e) => {
-      if (e.document.uri.toString() === document.uri.toString()) {
+      if (
+        e.document.uri.toString() === document.uri.toString() &&
+        !isWebviewSaving
+      ) {
         sendContent();
       }
     });
 
-    webviewPanel.onDidDispose(() => changeSubscription.dispose());
+    // Re-send content when panel regains focus (e.g. after tab switch)
+    const viewStateSubscription = webviewPanel.onDidChangeViewState(() => {
+      if (webviewPanel.visible) {
+        sendContent();
+      }
+    });
 
-    sendContent();
+    webviewPanel.onDidDispose(() => {
+      changeSubscription.dispose();
+      viewStateSubscription.dispose();
+    });
   }
 
   private getHtmlForWebview(webview: vscode.Webview): string {
