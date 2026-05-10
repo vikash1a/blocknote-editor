@@ -1,5 +1,9 @@
-import React, { useEffect, useRef, useCallback } from 'react';
-import { useCreateBlockNote } from '@blocknote/react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
+import {
+  useCreateBlockNote,
+  getDefaultReactSlashMenuItems,
+  SuggestionMenuController,
+} from '@blocknote/react';
 import { BlockNoteView } from '@blocknote/mantine';
 import '@blocknote/mantine/style.css';
 
@@ -9,10 +13,15 @@ declare function acquireVsCodeApi(): {
 
 const vscode = acquireVsCodeApi();
 
+const formatDate = (date: Date): string =>
+  date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
 export default function App() {
   const editor = useCreateBlockNote();
   const isInternalUpdate = useRef(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [pickedDate, setPickedDate] = useState('');
 
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
@@ -20,31 +29,21 @@ export default function App() {
       if (message.type !== 'update') {
         return;
       }
-
-      // Cancel any pending save to avoid overwriting the incoming content
       if (saveTimer.current) {
         clearTimeout(saveTimer.current);
         saveTimer.current = null;
       }
-
       isInternalUpdate.current = true;
       try {
         const blocks = await editor.tryParseMarkdownToBlocks(message.content as string);
         editor.replaceBlocks(editor.document, blocks);
       } finally {
-        // Keep the flag true briefly to absorb the onChange BlockNote fires
-        // after replaceBlocks before clearing it
-        setTimeout(() => {
-          isInternalUpdate.current = false;
-        }, 150);
+        setTimeout(() => { isInternalUpdate.current = false; }, 150);
       }
     };
 
     window.addEventListener('message', handleMessage);
-
-    // Tell the extension we're mounted and ready to receive content
     vscode.postMessage({ type: 'ready' });
-
     return () => window.removeEventListener('message', handleMessage);
   }, [editor]);
 
@@ -52,8 +51,6 @@ export default function App() {
     if (isInternalUpdate.current) {
       return;
     }
-
-    // Debounce: wait for the user to pause typing before saving
     if (saveTimer.current) {
       clearTimeout(saveTimer.current);
     }
@@ -63,11 +60,141 @@ export default function App() {
     }, 300);
   }, [editor]);
 
+  const insertDate = useCallback((dateStr: string) => {
+    const cursorBlock = editor.getTextCursorPosition().block;
+    editor.insertBlocks(
+      [{ type: 'paragraph', content: [{ type: 'text', text: dateStr, styles: {} }] }],
+      cursorBlock,
+      'after'
+    );
+  }, [editor]);
+
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  const dateSlashItems = [
+    {
+      title: 'Today',
+      onItemClick: () => insertDate(formatDate(today)),
+      group: 'Date',
+      icon: <span style={{ fontSize: 16 }}>📅</span>,
+      subtext: formatDate(today),
+    },
+    {
+      title: 'Tomorrow',
+      onItemClick: () => insertDate(formatDate(tomorrow)),
+      group: 'Date',
+      icon: <span style={{ fontSize: 16 }}>📅</span>,
+      subtext: formatDate(tomorrow),
+    },
+    {
+      title: 'Pick a Date',
+      onItemClick: () => setShowDatePicker(true),
+      group: 'Date',
+      icon: <span style={{ fontSize: 16 }}>🗓️</span>,
+      subtext: 'Choose a specific date',
+    },
+  ];
+
+  const handleInsertPickedDate = () => {
+    if (pickedDate) {
+      const [y, m, d] = pickedDate.split('-').map(Number);
+      insertDate(formatDate(new Date(y, m - 1, d)));
+    }
+    setShowDatePicker(false);
+    setPickedDate('');
+  };
+
   return (
-    <BlockNoteView
-      editor={editor}
-      onChange={handleChange}
-      theme="light"
-    />
+    <>
+      <BlockNoteView editor={editor} onChange={handleChange} theme="light">
+        <SuggestionMenuController
+          triggerCharacter="/"
+          getItems={async (query) => [
+            ...getDefaultReactSlashMenuItems(editor),
+            ...dateSlashItems,
+          ].filter((item) =>
+            item.title.toLowerCase().includes(query.toLowerCase())
+          )}
+        />
+      </BlockNoteView>
+
+      {showDatePicker && (
+        <div style={overlayStyle}>
+          <div style={modalStyle}>
+            <p style={{ margin: '0 0 12px 0', fontWeight: 600, fontSize: 15 }}>Pick a Date</p>
+            <input
+              type="date"
+              value={pickedDate}
+              onChange={(e) => setPickedDate(e.target.value)}
+              autoFocus
+              style={dateInputStyle}
+            />
+            <div style={{ marginTop: 14, display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => { setShowDatePicker(false); setPickedDate(''); }}
+                style={cancelBtnStyle}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleInsertPickedDate}
+                disabled={!pickedDate}
+                style={insertBtnStyle(!!pickedDate)}
+              >
+                Insert
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
+
+const overlayStyle: React.CSSProperties = {
+  position: 'fixed',
+  inset: 0,
+  background: 'rgba(0,0,0,0.25)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  zIndex: 9999,
+};
+
+const modalStyle: React.CSSProperties = {
+  background: '#fff',
+  borderRadius: 10,
+  padding: '20px 24px',
+  minWidth: 280,
+  boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+};
+
+const dateInputStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '8px 10px',
+  fontSize: 14,
+  border: '1px solid #ddd',
+  borderRadius: 6,
+  boxSizing: 'border-box',
+};
+
+const cancelBtnStyle: React.CSSProperties = {
+  padding: '7px 16px',
+  borderRadius: 6,
+  border: '1px solid #ddd',
+  background: '#fff',
+  cursor: 'pointer',
+  fontSize: 13,
+};
+
+const insertBtnStyle = (enabled: boolean): React.CSSProperties => ({
+  padding: '7px 16px',
+  borderRadius: 6,
+  border: 'none',
+  background: enabled ? '#2563eb' : '#93c5fd',
+  color: '#fff',
+  cursor: enabled ? 'pointer' : 'not-allowed',
+  fontSize: 13,
+});
