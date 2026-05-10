@@ -14,7 +14,7 @@ declare function acquireVsCodeApi(): {
 const vscode = acquireVsCodeApi();
 
 const formatDate = (date: Date): string =>
-  date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  `📅 ${date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
 
 export default function App() {
   const editor = useCreateBlockNote();
@@ -60,13 +60,17 @@ export default function App() {
     }, 300);
   }, [editor]);
 
-  const insertDate = useCallback((dateStr: string) => {
-    const cursorBlock = editor.getTextCursorPosition().block;
-    editor.insertBlocks(
-      [{ type: 'paragraph', content: [{ type: 'text', text: dateStr, styles: {} }] }],
-      cursorBlock,
-      'after'
-    );
+  // Ref to remember which block was active when "Pick a Date" was opened
+  const savedBlock = useRef<ReturnType<typeof editor.getTextCursorPosition>['block'] | null>(null);
+
+  const insertDateInline = useCallback((dateStr: string) => {
+    editor.insertInlineContent([{ type: 'text', text: dateStr, styles: {} }]);
+  }, [editor]);
+
+  const insertDateIntoBlock = useCallback((block: NonNullable<typeof savedBlock.current>, dateStr: string) => {
+    editor.updateBlock(block, {
+      content: [{ type: 'text', text: dateStr, styles: {} }],
+    });
   }, [editor]);
 
   const today = new Date();
@@ -76,21 +80,25 @@ export default function App() {
   const dateSlashItems = [
     {
       title: 'Today',
-      onItemClick: () => insertDate(formatDate(today)),
+      onItemClick: () => insertDateInline(formatDate(today)),
       group: 'Date',
       icon: <span style={{ fontSize: 16 }}>📅</span>,
       subtext: formatDate(today),
     },
     {
       title: 'Tomorrow',
-      onItemClick: () => insertDate(formatDate(tomorrow)),
+      onItemClick: () => insertDateInline(formatDate(tomorrow)),
       group: 'Date',
       icon: <span style={{ fontSize: 16 }}>📅</span>,
       subtext: formatDate(tomorrow),
     },
     {
       title: 'Pick a Date',
-      onItemClick: () => setShowDatePicker(true),
+      onItemClick: () => {
+        // Save block reference before the modal steals focus
+        savedBlock.current = editor.getTextCursorPosition().block;
+        setShowDatePicker(true);
+      },
       group: 'Date',
       icon: <span style={{ fontSize: 16 }}>🗓️</span>,
       subtext: 'Choose a specific date',
@@ -98,9 +106,10 @@ export default function App() {
   ];
 
   const handleInsertPickedDate = () => {
-    if (pickedDate) {
+    if (pickedDate && savedBlock.current) {
       const [y, m, d] = pickedDate.split('-').map(Number);
-      insertDate(formatDate(new Date(y, m - 1, d)));
+      insertDateIntoBlock(savedBlock.current, formatDate(new Date(y, m - 1, d)));
+      savedBlock.current = null;
     }
     setShowDatePicker(false);
     setPickedDate('');
