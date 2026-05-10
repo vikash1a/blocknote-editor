@@ -1,0 +1,59 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Read version
+        id: version
+        run: echo "value=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Check if release already exists
+        id: check
+        run: |
+          if gh release view "v${{ steps.version.outputs.value }}" &>/dev/null; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build VSIX
+        if: steps.check.outputs.exists == 'false'
+        run: npm run package
+
+      - name: Create GitHub Release
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          gh release create "v${{ steps.version.outputs.value }}" \
+            blocknote-editor-${{ steps.version.outputs.value }}.vsix \
+            --title "v${{ steps.version.outputs.value }}" \
+            --generate-notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to VS Code Marketplace
+        if: steps.check.outputs.exists == 'false' && secrets.VSCE_PAT != ''
+        run: npx vsce publish --no-dependencies
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
