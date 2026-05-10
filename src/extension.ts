@@ -95,7 +95,7 @@ class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
   <title>BlockNote Editor</title>
   <style>
     * { box-sizing: border-box; }
-    body { margin: 0; padding: 0; background: var(--vscode-editor-background); color: var(--vscode-editor-foreground); }
+    body { margin: 0; padding: 0; background: #ffffff; color: #000000; }
     #root { height: 100vh; overflow-y: auto; }
   </style>
 </head>

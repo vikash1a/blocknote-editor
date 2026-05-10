@@ -67,7 +67,7 @@ export default function App() {
     <BlockNoteView
       editor={editor}
       onChange={handleChange}
-      theme="dark"
+      theme="light"
     />
   );
 }
