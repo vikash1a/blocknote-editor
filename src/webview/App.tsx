@@ -5,8 +5,46 @@ import {
   SuggestionMenuController,
 } from '@blocknote/react';
 import { BlockNoteView } from '@blocknote/mantine';
+import {
+  BlockNoteSchema,
+  defaultBlockSpecs,
+  createCodeBlockSpec,
+} from '@blocknote/core';
+import { createHighlighter } from 'shiki';
 import '@blocknote/mantine/style.css';
 import './styles.css';
+
+const schema = BlockNoteSchema.create({
+  blockSpecs: {
+    ...defaultBlockSpecs,
+    codeBlock: createCodeBlockSpec({
+      defaultLanguage: 'text',
+      supportedLanguages: {
+        text: { name: 'Plain Text', aliases: ['txt', 'plaintext'] },
+        javascript: { name: 'JavaScript', aliases: ['js'] },
+        typescript: { name: 'TypeScript', aliases: ['ts'] },
+        python: { name: 'Python', aliases: ['py'] },
+        bash: { name: 'Bash', aliases: ['sh', 'shell'] },
+        html: { name: 'HTML' },
+        css: { name: 'CSS' },
+        json: { name: 'JSON' },
+        go: { name: 'Go', aliases: ['golang'] },
+        rust: { name: 'Rust', aliases: ['rs'] },
+        java: { name: 'Java' },
+        sql: { name: 'SQL' },
+        yaml: { name: 'YAML', aliases: ['yml'] },
+      },
+      createHighlighter: () =>
+        createHighlighter({
+          themes: ['github-light'],
+          langs: [
+            'javascript', 'typescript', 'python', 'bash',
+            'html', 'css', 'json', 'go', 'rust', 'java', 'sql', 'yaml',
+          ],
+        }),
+    }),
+  },
+});
 
 declare function acquireVsCodeApi(): {
   postMessage: (message: unknown) => void;
@@ -18,7 +56,7 @@ const formatDate = (date: Date): string =>
   `📅 ${date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
 
 export default function App() {
-  const editor = useCreateBlockNote();
+  const editor = useCreateBlockNote({ schema });
   const isInternalUpdate = useRef(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);

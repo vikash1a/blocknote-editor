@@ -30,7 +30,8 @@
     "compile": "webpack --mode development",
     "watch": "webpack --mode development --watch",
     "package": "webpack --mode production && vsce package",
-    "vscode:prepublish": "webpack --mode production"
+    "vscode:prepublish": "webpack --mode production",
+    "install-local": "npm run package && \"/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code\" --install-extension blocknote-editor-0.0.1.vsix"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
@@ -52,6 +53,7 @@
     "@mantine/core": "^9.1.1",
     "@mantine/hooks": "^9.1.1",
     "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "react-dom": "^19.2.6",
+    "shiki": "^4.0.2"
   }
 }

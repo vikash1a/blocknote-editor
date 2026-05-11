@@ -1,9 +1,20 @@
 [data-content-type="heading"] {
-  --level: 2em;
+  --level: 1.4em;
 }
 [data-content-type="heading"][data-level="2"] {
-  --level: 1.5em;
+  --level: 1.2em;
 }
 [data-content-type="heading"][data-level="3"] {
-  --level: 1.1em;
+  --level: 1.05em;
+}
+
+.bn-block-content[data-content-type="codeBlock"] {
+  border-radius: 6px;
+  background-color: #f0f0f0 !important;
+  color: #1f2328 !important;
+}
+.bn-block-content[data-content-type="codeBlock"] > pre {
+  padding: 12px 16px;
+  font-size: 0.85em;
+  line-height: 1.5;
 }

@@ -7,8 +7,9 @@ Opens `.md` files as a rich block editor with inline preview — no split panes.
 ## Features
 
 - Inline WYSIWYG editing (renders as you type)
-- Slash commands for inserting blocks
+- Slash commands (`/`) for inserting blocks
 - Headings, lists, code blocks, tables, and more
+- Date insertion via slash menu — Today, Tomorrow, or Pick a Date
 - Reads and writes standard `.md` files
 
 ## Install
@@ -35,9 +36,13 @@ To open a specific file with BlockNote: right-click → **Open With** → **Bloc
 
 ```bash
 npm install
-npm run compile    # development build
-npm run package    # production build + .vsix
+npm run compile       # development build (fast, unminified)
+npm run watch         # development build with file watching
+npm run package       # production build + .vsix
+npm run install-local # production build + install into local VS Code
 ```
+
+`install-local` requires VS Code to be installed at `/Applications/Visual Studio Code.app`. After running it, reload VS Code (`Cmd+Shift+P` → **Developer: Reload Window**) to pick up the changes.
 
 ## Caveats
 
