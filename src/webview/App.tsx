@@ -10,7 +10,7 @@ import {
   defaultBlockSpecs,
   createCodeBlockSpec,
 } from '@blocknote/core';
-import { createHighlighter } from 'shiki';
+import { createHighlighter, createJavaScriptRegexEngine } from 'shiki';
 import '@blocknote/mantine/style.css';
 import './styles.css';
 
@@ -41,6 +41,7 @@ const schema = BlockNoteSchema.create({
             'javascript', 'typescript', 'python', 'bash',
             'html', 'css', 'json', 'go', 'rust', 'java', 'sql', 'yaml',
           ],
+          engine: createJavaScriptRegexEngine(),
         }),
     }),
   },

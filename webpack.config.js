@@ -26,6 +26,12 @@ module.exports = [
     output: {
       path: path.resolve(__dirname, 'dist', 'webview'),
       filename: 'webview.js',
+      publicPath: 'auto',
+    },
+    // Disable code splitting — VS Code webview CSP blocks dynamically loaded chunks
+    optimization: {
+      splitChunks: false,
+      runtimeChunk: false,
     },
     resolve: { extensions: ['.tsx', '.ts', '.js'] },
     module: {

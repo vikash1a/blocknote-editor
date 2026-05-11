@@ -11,10 +11,13 @@
 .bn-block-content[data-content-type="codeBlock"] {
   border-radius: 6px;
   background-color: #f0f0f0 !important;
-  color: #1f2328 !important;
 }
 .bn-block-content[data-content-type="codeBlock"] > pre {
   padding: 12px 16px;
   font-size: 0.85em;
   line-height: 1.5;
+  color: #1f2328;
+}
+.bn-block-content[data-content-type="codeBlock"] span {
+  background: none !important;
 }
