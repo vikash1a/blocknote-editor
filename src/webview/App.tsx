@@ -6,6 +6,7 @@ import {
 } from '@blocknote/react';
 import { BlockNoteView } from '@blocknote/mantine';
 import '@blocknote/mantine/style.css';
+import './styles.css';
 
 declare function acquireVsCodeApi(): {
   postMessage: (message: unknown) => void;
