@@ -1,28 +1,40 @@
 # BlockNote Editor
 
-A Notion-like markdown editor for VS Code, powered by [BlockNote](https://www.blocknotejs.org).
+A Notion-like rich markdown editor for VS Code, powered by [BlockNote](https://www.blocknotejs.org).
 
-Opens `.md` files as a rich block editor with inline preview — no split panes. Edits are saved back to disk as standard markdown.
+Opens `.md` files as a visual block editor with inline preview — no split panes, no raw markdown. Edits are saved back to disk as standard markdown so your files stay portable.
 
 ## Features
 
-- Inline WYSIWYG editing (renders as you type)
-- Slash commands (`/`) for inserting blocks
-- Headings, lists, code blocks, tables, and more
-- Date insertion via slash menu — Today, Tomorrow, or Pick a Date
-- Reads and writes standard `.md` files
+### Editing
+- WYSIWYG block editing — see formatted output as you type
+- Slash command menu (`/`) to insert any block type
+- Drag-and-drop to reorder blocks
+- Headings (H1–H3), paragraphs, bullet & numbered lists, tables, quotes, dividers
 
-## Install
+### Code Blocks
+- Syntax highlighting powered by [Shiki](https://shiki.matsu.io) with the `github-light` theme
+- 13 supported languages: JavaScript, TypeScript, Python, Bash, Go, Rust, Java, SQL, HTML, CSS, JSON, YAML, Plain Text
+- Language selector in the block toolbar
 
-Download the `.vsix` from [Releases](https://github.com/vikash1a/blocknote-editor/releases) and install via:
+### Mermaid Diagrams
+- Insert diagrams via `/Mermaid Diagram` slash command
+- Supported diagram types: flowcharts, sequence diagrams, ER diagrams, class diagrams, state machines, Gantt charts, Git graphs, and more
+- Diagram renders automatically as you type the source
+- Source editor hidden by default — click **✎ Edit source** to expand, **▲ Hide source** to collapse
+- Saves as standard ` ```mermaid ` fenced code blocks — renders on GitHub and other markdown tools
 
-`Cmd+Shift+P` → **Extensions: Install from VSIX...**
+### Date Insertion
+- Insert today's or tomorrow's date via `/Today` or `/Tomorrow`
+- Pick any date with `/Pick a Date` — opens a date picker
 
 ## Usage
 
-After installing, open any `.md` file — it will open in BlockNote automatically.
+After installing, open any `.md` file — it opens in BlockNote automatically.
 
-To make it the default editor for all markdown files, add this to your VS Code `settings.json`:
+To switch to the standard text editor for a file: right-click the tab → **Reopen Editor With** → **Text Editor**.
+
+To make BlockNote the default for all markdown files, add to `settings.json`:
 
 ```json
 "workbench.editorAssociations": {
@@ -30,20 +42,22 @@ To make it the default editor for all markdown files, add this to your VS Code `
 }
 ```
 
-To open a specific file with BlockNote: right-click → **Open With** → **BlockNote Editor**.
+## Install
+
+Download the `.vsix` from [Releases](https://github.com/vikash1a/blocknote-editor/releases) and install via:
+
+`Cmd+Shift+P` → **Extensions: Install from VSIX...**
 
 ## Development
 
 ```bash
 npm install
-npm run compile       # development build (fast, unminified)
-npm run watch         # development build with file watching
-npm run package       # production build + .vsix
+npm run watch         # incremental dev build with file watching
 npm run install-local # production build + install into local VS Code
 ```
 
-`install-local` requires VS Code to be installed at `/Applications/Visual Studio Code.app`. After running it, reload VS Code (`Cmd+Shift+P` → **Developer: Reload Window**) to pick up the changes.
+Press **F5** in VS Code (with this project open) to launch an Extension Development Host for rapid iteration — no `.vsix` install needed.
 
 ## Caveats
 
-Markdown conversion is lossy — complex syntax like raw HTML, footnotes, or unusual nesting may not round-trip perfectly. Standard content (headings, lists, bold, italic, code blocks, tables) works fine.
+Markdown serialization is lossy — complex syntax like raw HTML, footnotes, or deeply nested structures may not round-trip perfectly. Standard content (headings, lists, bold, italic, code blocks, tables, mermaid diagrams) works correctly.
