@@ -1,0 +1,24 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "watch",
+      "group": "build",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "webpack",
+        "pattern": {
+          "regexp": "^(ERROR|WARNING) in (.+)$",
+          "message": 1,
+          "file": 2
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "webpack is watching",
+          "endsPattern": "compiled"
+        }
+      }
+    }
+  ]
+}
