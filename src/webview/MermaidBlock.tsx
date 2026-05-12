@@ -2,7 +2,26 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createReactBlockSpec } from '@blocknote/react';
 import mermaid from 'mermaid';
 
-mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'loose' });
+mermaid.initialize({
+  startOnLoad: false,
+  securityLevel: 'loose',
+  theme: 'base',
+  themeVariables: {
+    primaryColor: '#e0e7ff',
+    primaryTextColor: '#1e1b4b',
+    primaryBorderColor: '#818cf8',
+    lineColor: '#6366f1',
+    secondaryColor: '#fce7f3',
+    tertiaryColor: '#f0fdf4',
+    tertiaryBorderColor: '#86efac',
+    edgeLabelBackground: '#ffffff',
+    clusterBkg: '#f8fafc',
+    clusterBorder: '#cbd5e1',
+    titleColor: '#0f172a',
+    nodeBorder: '#818cf8',
+    mainBkg: '#e0e7ff',
+  },
+});
 
 export const mermaidBlockSpec = createReactBlockSpec(
   {
