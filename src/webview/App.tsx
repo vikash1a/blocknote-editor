@@ -125,7 +125,7 @@ export default function App() {
       const current = editor.getTextCursorPosition().block;
       editor.insertBlocks([{ type: 'mermaid' as const }], current, 'after');
     },
-    group: 'Media',
+    group: 'Diagram',
     icon: <span style={{ fontSize: 16 }}>📊</span>,
     subtext: 'Insert a Mermaid diagram',
   };
