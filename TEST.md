@@ -1,3 +1,44 @@
+# Syntax Highlighting & Mermaid Test
+
+## Mermaid — Flowchart
+
+```mermaid
+graph TD
+  A[Start] --> B{Is it working?}
+  B -- Yes --> C[Great!]
+  B -- No --> D[Debug]
+  D --> B
+```
+
+## Mermaid — Sequence Diagram
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant Editor
+  participant VSCode
+  User->>Editor: Type /mermaid
+  Editor->>VSCode: Save markdown
+  VSCode-->>Editor: File updated
+```
+
+## Mermaid — Entity Relationship
+
+```mermaid
+erDiagram
+  USER {
+    int id
+    string name
+    string email
+  }
+  ORDER {
+    int id
+    int user_id
+    float total
+  }
+  USER ||--o{ ORDER : places
+```
+
 # Syntax Highlighting Test
 
 ## JavaScript

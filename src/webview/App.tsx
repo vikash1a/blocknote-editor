@@ -11,11 +11,13 @@ import {
   createCodeBlockSpec,
 } from '@blocknote/core';
 import { createHighlighter, createJavaScriptRegexEngine } from 'shiki';
+import { mermaidBlockSpec } from './MermaidBlock';
 import '@blocknote/mantine/style.css';
 import './styles.css';
 
 const schema = BlockNoteSchema.create({
   blockSpecs: {
+    mermaid: mermaidBlockSpec(),
     ...defaultBlockSpecs,
     codeBlock: createCodeBlockSpec({
       defaultLanguage: 'text',
@@ -117,6 +119,17 @@ export default function App() {
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
 
+  const mermaidSlashItem = {
+    title: 'Mermaid Diagram',
+    onItemClick: () => {
+      const current = editor.getTextCursorPosition().block;
+      editor.insertBlocks([{ type: 'mermaid' as const }], current, 'after');
+    },
+    group: 'Media',
+    icon: <span style={{ fontSize: 16 }}>📊</span>,
+    subtext: 'Insert a Mermaid diagram',
+  };
+
   const dateSlashItems = [
     {
       title: 'Today',
@@ -162,6 +175,7 @@ export default function App() {
           triggerCharacter="/"
           getItems={async (query) => [
             ...getDefaultReactSlashMenuItems(editor),
+            mermaidSlashItem,
             ...dateSlashItems,
           ].filter((item) =>
             item.title.toLowerCase().includes(query.toLowerCase())
