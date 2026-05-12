@@ -31,7 +31,7 @@
     "watch": "webpack --mode development --watch",
     "package": "webpack --mode production && vsce package",
     "vscode:prepublish": "webpack --mode production",
-    "install-local": "npm run package && \"/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code\" --install-extension blocknote-editor-0.0.1.vsix"
+    "install-local": "npm run package && \"/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code\" --install-extension \"blocknote-editor-$(node -e 'process.stdout.write(require(\"./package.json\").version)').vsix\""
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

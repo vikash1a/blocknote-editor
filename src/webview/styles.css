@@ -18,6 +18,9 @@
   line-height: 1.5;
   color: #1f2328;
 }
-.bn-block-content[data-content-type="codeBlock"] span {
-  background: none !important;
+.bn-block-content[data-content-type="codeBlock"] pre *,
+.bn-block-content[data-content-type="codeBlock"] pre *::before,
+.bn-block-content[data-content-type="codeBlock"] pre *::after {
+  background: transparent !important;
+  background-color: transparent !important;
 }
