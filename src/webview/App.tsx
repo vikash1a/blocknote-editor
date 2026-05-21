@@ -37,6 +37,7 @@ const schema = BlockNoteSchema.create({
         json: { name: 'JSON' },
         go: { name: 'Go', aliases: ['golang'] },
         rust: { name: 'Rust', aliases: ['rs'] },
+        cpp: { name: 'C++', aliases: ['c++', 'cc', 'cxx'] },
         java: { name: 'Java' },
         sql: { name: 'SQL' },
         yaml: { name: 'YAML', aliases: ['yml'] },
@@ -46,7 +47,7 @@ const schema = BlockNoteSchema.create({
           themes: ['github-light'],
           langs: [
             'javascript', 'typescript', 'python', 'bash',
-            'html', 'css', 'json', 'go', 'rust', 'java', 'sql', 'yaml',
+            'html', 'css', 'json', 'go', 'rust', 'cpp', 'java', 'sql', 'yaml',
           ],
           engine: createJavaScriptRegexEngine(),
         }),
