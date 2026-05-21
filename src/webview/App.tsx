@@ -12,13 +12,18 @@ import {
 } from '@blocknote/core';
 import { createHighlighter, createJavaScriptRegexEngine } from 'shiki';
 import { mermaidBlockSpec } from './MermaidBlock';
+import { imageBlockSpec } from './ImageBlock';
+import { vscode } from './vscodeApi';
 import '@blocknote/mantine/style.css';
 import './styles.css';
+
+const { image: _defaultImage, ...defaultBlockSpecsWithoutImage } = defaultBlockSpecs;
 
 const schema = BlockNoteSchema.create({
   blockSpecs: {
     mermaid: mermaidBlockSpec(),
-    ...defaultBlockSpecs,
+    ...defaultBlockSpecsWithoutImage,
+    image: imageBlockSpec(),
     codeBlock: createCodeBlockSpec({
       defaultLanguage: 'text',
       supportedLanguages: {
@@ -48,12 +53,6 @@ const schema = BlockNoteSchema.create({
     }),
   },
 });
-
-declare function acquireVsCodeApi(): {
-  postMessage: (message: unknown) => void;
-};
-
-const vscode = acquireVsCodeApi();
 
 const formatDate = (date: Date): string =>
   `📅 ${date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
@@ -130,6 +129,17 @@ export default function App() {
     subtext: 'Insert a Mermaid diagram',
   };
 
+  const imageSlashItem = {
+    title: 'Image',
+    onItemClick: () => {
+      const current = editor.getTextCursorPosition().block;
+      editor.insertBlocks([{ type: 'image' as const, props: { url: '', alt: '' } }], current, 'after');
+    },
+    group: 'Media',
+    icon: <span style={{ fontSize: 16 }}>🖼</span>,
+    subtext: 'Insert an image from URL',
+  };
+
   const dateSlashItems = [
     {
       title: 'Today',
@@ -176,6 +186,7 @@ export default function App() {
           getItems={async (query) => [
             ...getDefaultReactSlashMenuItems(editor),
             mermaidSlashItem,
+            imageSlashItem,
             ...dateSlashItems,
           ].filter((item) =>
             item.title.toLowerCase().includes(query.toLowerCase())

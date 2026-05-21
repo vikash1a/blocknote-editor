@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
@@ -18,10 +19,13 @@ class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
     webviewPanel: vscode.WebviewPanel,
     _token: vscode.CancellationToken
   ): Promise<void> {
+    const docDir = vscode.Uri.file(path.dirname(document.uri.fsPath));
     webviewPanel.webview.options = {
       enableScripts: true,
       localResourceRoots: [
         vscode.Uri.joinPath(this.context.extensionUri, 'dist', 'webview'),
+        docDir,
+        ...(vscode.workspace.workspaceFolders?.map((f) => f.uri) ?? []),
       ],
     };
 
@@ -41,6 +45,16 @@ class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
       if (message.type === 'ready') {
         // Webview signals it's mounted and listening — safe to send content now
         sendContent();
+      } else if (message.type === 'resolveImagePath') {
+        const rawPath: string = message.path;
+        let fileUri: vscode.Uri;
+        if (path.isAbsolute(rawPath)) {
+          fileUri = vscode.Uri.file(rawPath);
+        } else {
+          fileUri = vscode.Uri.file(path.join(path.dirname(document.uri.fsPath), rawPath));
+        }
+        const webviewUri = webviewPanel.webview.asWebviewUri(fileUri).toString();
+        webviewPanel.webview.postMessage({ type: 'resolvedImagePath', original: rawPath, uri: webviewUri });
       } else if (message.type === 'save') {
         isWebviewSaving = true;
         try {
@@ -90,7 +104,7 @@ class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}' ${webview.cspSource} 'unsafe-eval'; font-src ${webview.cspSource} data:; img-src ${webview.cspSource} data: blob:;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}' ${webview.cspSource} 'unsafe-eval'; font-src ${webview.cspSource} data:; img-src ${webview.cspSource} data: blob: https:;">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BlockNote Editor</title>
   <style>
