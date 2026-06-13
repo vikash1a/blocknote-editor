@@ -10,6 +10,7 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    environment: first-env
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,7 +41,6 @@ jobs:
 
       - name: Publish extension to Marketplace
         if: steps.version.outputs.changed == 'true'
-        environment: first-env
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
         run: npx @vscode/vsce publish --pat "$VSCE_PAT"
