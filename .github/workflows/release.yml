@@ -40,6 +40,7 @@ jobs:
 
       - name: Publish extension to Marketplace
         if: steps.version.outputs.changed == 'true'
+        environment: first-env
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
         run: npx @vscode/vsce publish --pat "$VSCE_PAT"
