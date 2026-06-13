@@ -36,11 +36,17 @@ jobs:
 
       - name: Install dependencies
         if: steps.version.outputs.changed == 'true'
-        run: npm ci
+        run: npm install
+
+      - name: Publish extension to Marketplace
+        if: steps.version.outputs.changed == 'true'
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: npx @vscode/vsce publish --pat "$VSCE_PAT"
 
       - name: Package extension
         if: steps.version.outputs.changed == 'true'
-        run: npx vsce package --allow-missing-repository
+        run: npx @vscode/vsce package --allow-missing-repository
 
       - name: Create release with VSIX
         if: steps.version.outputs.changed == 'true'
