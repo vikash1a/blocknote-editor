@@ -34,6 +34,14 @@ class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
     // Track whether a change originated from the webview to prevent echo loop
     let isWebviewSaving = false;
 
+    const sendTheme = () => {
+      const isDark = vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Dark;
+      webviewPanel.webview.postMessage({
+        type: 'themeChange',
+        theme: isDark ? 'dark' : 'light',
+      });
+    };
+
     const sendContent = () => {
       webviewPanel.webview.postMessage({
         type: 'update',
@@ -43,8 +51,7 @@ class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
 
     webviewPanel.webview.onDidReceiveMessage(async (message) => {
       if (message.type === 'ready') {
-        // Webview signals it's mounted and listening — safe to send content now
-        sendContent();
+        // Webview signals it's mounted and listening — safe to send content now        sendTheme();        sendContent();
       } else if (message.type === 'resolveImagePath') {
         const rawPath: string = message.path;
         let fileUri: vscode.Uri;
@@ -88,9 +95,15 @@ class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
       }
     });
 
+    // Listen for theme changes
+    const themeChangeSubscription = vscode.window.onDidChangeActiveColorTheme(() => {
+      sendTheme();
+    });
+
     webviewPanel.onDidDispose(() => {
       changeSubscription.dispose();
       viewStateSubscription.dispose();
+      themeChangeSubscription.dispose();
     });
   }
 
@@ -99,9 +112,11 @@ class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
       vscode.Uri.joinPath(this.context.extensionUri, 'dist', 'webview', 'webview.js')
     );
     const nonce = getNonce();
+    const isDark = vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Dark;
+    const theme = isDark ? 'dark' : 'light';
 
     return `<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="${theme}">
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}' ${webview.cspSource} 'unsafe-eval'; font-src ${webview.cspSource} data:; img-src ${webview.cspSource} data: blob: https:;">
@@ -109,7 +124,8 @@ class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
   <title>BlockNote Editor</title>
   <style>
     * { box-sizing: border-box; }
-    body { margin: 0; padding: 0; background: #ffffff; color: #000000; }
+    html[data-theme="light"] body { background: #ffffff; color: #000000; }
+    html[data-theme="dark"] body { background: #1e1e1e; color: #e0e0e0; }
     #root { height: 100vh; overflow-y: auto; }
   </style>
 </head>

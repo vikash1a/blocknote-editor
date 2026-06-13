@@ -44,7 +44,7 @@ const schema = BlockNoteSchema.create({
       },
       createHighlighter: () =>
         createHighlighter({
-          themes: ['github-light'],
+          themes: ['github-light', 'github-dark'],
           langs: [
             'javascript', 'typescript', 'python', 'bash',
             'html', 'css', 'json', 'go', 'rust', 'cpp', 'java', 'sql', 'yaml',
@@ -64,10 +64,16 @@ export default function App() {
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [pickedDate, setPickedDate] = useState('');
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
       const message = event.data;
+      if (message.type === 'themeChange') {
+        setTheme(message.theme);
+        document.documentElement.setAttribute('data-theme', message.theme);
+        return;
+      }
       if (message.type !== 'update') {
         return;
       }
@@ -181,7 +187,7 @@ export default function App() {
 
   return (
     <>
-      <BlockNoteView editor={editor} onChange={handleChange} theme="light">
+      <BlockNoteView editor={editor} onChange={handleChange} theme={theme}>
         <SuggestionMenuController
           triggerCharacter="/"
           getItems={async (query) => [
