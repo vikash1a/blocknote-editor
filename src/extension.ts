@@ -115,6 +115,10 @@ class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
     const isDark = vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Dark;
     const theme = isDark ? 'dark' : 'light';
 
+    const publicPathUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this.context.extensionUri, 'dist', 'webview')
+    ).toString() + '/';
+
     return `<!DOCTYPE html>
 <html lang="en" data-theme="${theme}">
 <head>
@@ -128,6 +132,9 @@ class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
     html[data-theme="dark"] body { background: #1e1e1e; color: #e0e0e0; }
     #root { height: 100vh; overflow-y: auto; }
   </style>
+  <script nonce="${nonce}">
+    window.__webpack_public_path__ = "${publicPathUri}";
+  </script>
 </head>
 <body>
   <div id="root"></div>
