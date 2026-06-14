@@ -51,7 +51,9 @@ class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
 
     webviewPanel.webview.onDidReceiveMessage(async (message) => {
       if (message.type === 'ready') {
-        // Webview signals it's mounted and listening — safe to send content now        sendTheme();        sendContent();
+        // Webview signals it's mounted and listening — safe to send content now
+        sendTheme();
+        sendContent();
       } else if (message.type === 'resolveImagePath') {
         const rawPath: string = message.path;
         let fileUri: vscode.Uri;
@@ -128,8 +130,7 @@ class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
   <title>BlockNote Editor</title>
   <style>
     * { box-sizing: border-box; }
-    html[data-theme="light"] body { background: #ffffff; color: #000000; }
-    html[data-theme="dark"] body { background: #1e1e1e; color: #e0e0e0; }
+    body { background: var(--vscode-editor-background); color: var(--vscode-editor-foreground); }
     #root { height: 100vh; overflow-y: auto; }
   </style>
   <script nonce="${nonce}">
