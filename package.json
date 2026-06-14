@@ -5,6 +5,11 @@
   "version": "0.0.9",
   "publisher": "vikashsinha",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vikash1a/blocknote-editor.git"
+  },
+  "icon": "images/icon.jpg",
   "engines": {
     "vscode": "^1.85.0"
   },

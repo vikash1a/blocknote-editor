@@ -1,40 +1,60 @@
-# BlockNote Editor
+# BlockNote Markdown Editor
 
-A Notion-like rich markdown editor for VS Code, powered by [BlockNote](https://www.blocknotejs.org).
+<p align="center">
+  <img src="images/screenshot.jpg" alt="BlockNote Editor Screenshot" width="800" style="border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);" />
+</p>
 
-Opens `.md` files as a visual block editor with inline preview — no split panes, no raw markdown. Edits are saved back to disk as standard markdown so your files stay portable.
+A Notion-like, rich visual markdown editor for VS Code, powered by [BlockNote](https://www.blocknotejs.org).
 
-## Features
+Opens `.md` files as an interactive block editor with inline live preview — no split panes, no raw markdown clutter. All edits are automatically serialized and saved back to disk as clean, standard markdown, keeping your files fully portable.
 
-### Editing
-- WYSIWYG block editing — see formatted output as you type
-- Slash command menu (`/`) to insert any block type
-- Drag-and-drop to reorder blocks
-- Headings (H1–H3), paragraphs, bullet & numbered lists, tables, quotes, dividers
+---
 
-### Code Blocks
-- Syntax highlighting powered by [Shiki](https://shiki.matsu.io) with the `github-light` theme
-- 13 supported languages: JavaScript, TypeScript, Python, Bash, Go, Rust, Java, SQL, HTML, CSS, JSON, YAML, Plain Text
-- Language selector in the block toolbar
+## 🚀 Features
 
-### Mermaid Diagrams
-- Insert diagrams via `/Mermaid Diagram` slash command
-- Supported diagram types: flowcharts, sequence diagrams, ER diagrams, class diagrams, state machines, Gantt charts, Git graphs, and more
-- Diagram renders automatically as you type the source
-- Source editor hidden by default — click **✎ Edit source** to expand, **▲ Hide source** to collapse
-- Saves as standard ` ```mermaid ` fenced code blocks — renders on GitHub and other markdown tools
+### ✨ Intuitive WYSIWYG Editing
+- **Block-Based Layout**: Create content using an intuitive block system.
+- **Drag-and-Drop**: Easily reorder blocks or structure content by dragging blocks around.
+- **Slash Commands (`/`)**: Type `/` to open a quick-insert menu for headings, lists, tables, code blocks, dividers, and more.
+- **Standard Formatting**: Full support for Headings (H1–H3), bold, italics, strikethrough, quotes, lists (bullet, numbered, check lists), and dividers.
 
-### Date Insertion
-- Insert today's or tomorrow's date via `/Today` or `/Tomorrow`
-- Pick any date with `/Pick a Date` — opens a date picker
+### 💻 Rich Code Blocks & Syntax Highlighting
+- **Embedded Shiki Highlighter**: Code blocks render with accurate syntax highlighting powered by [Shiki](https://shiki.matsu.io) using the `github-light` theme.
+- **Multi-language Support**: Fully supports popular programming languages including JavaScript, TypeScript, Python, Bash, Go, Rust, Java, SQL, HTML, CSS, JSON, YAML, and Plain Text.
+- **Language Selector**: Seamlessly switch languages directly from the block toolbar.
 
-## Usage
+### 📊 Live Mermaid Diagrams
+- **Visual Renders**: Insert diagrams using the `/Mermaid Diagram` command.
+- **Interactive Editing**: Click **✎ Edit source** to expand and modify the Mermaid source code, and **▲ Hide source** to collapse it.
+- **Universal Portability**: Renders live inside the editor but saves as standard ` ```mermaid ` code blocks, making them fully compatible with GitHub and other markdown tools.
 
-After installing, open any `.md` file — it opens in BlockNote automatically.
+### 📅 Smart Date Picker
+- **Slash Commands**: Quickly insert today's or tomorrow's date with `/Today` or `/Tomorrow`.
+- **Date Picker Dialog**: Use `/Pick a Date` to select any date using an interactive visual calendar.
 
-To switch to the standard text editor for a file: right-click the tab → **Reopen Editor With** → **Text Editor**.
+---
 
-To make BlockNote the default for all markdown files, add to `settings.json`:
+## 📦 Installation
+
+Install **BlockNote Editor** via:
+- **VS Code Marketplace**: Search for `BlockNote Markdown Editor`
+- **Open VSX Registry**: Search for `BlockNote Editor`
+- **VSIX Install**: Download the `.vsix` from [GitHub Releases](https://github.com/vikash1a/blocknote-editor/releases), open the Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`), and run **Extensions: Install from VSIX...**
+
+---
+
+## 🛠️ Usage & Configuration
+
+When you open any `.md` file, the BlockNote visual editor will open automatically.
+
+### Switching Editors
+If you need to view or edit the raw markdown text:
+1. Right-click the document tab.
+2. Select **Reopen Editor With...**
+3. Choose **Text Editor** (or **BlockNote Editor** to switch back).
+
+### Make BlockNote the Default Editor
+To set BlockNote as your default editor for all markdown files, add the following configuration to your `settings.json`:
 
 ```json
 "workbench.editorAssociations": {
@@ -42,22 +62,16 @@ To make BlockNote the default for all markdown files, add to `settings.json`:
 }
 ```
 
-## Install
+---
 
-Download the `.vsix` from [Releases](https://github.com/vikash1a/blocknote-editor/releases) and install via:
+## ⚠️ Caveats & Portability
 
-`Cmd+Shift+P` → **Extensions: Install from VSIX...**
+The editor uses standard markdown serialization to save files. However, markdown conversion can be lossy:
+- Extremely complex raw HTML, markdown footnotes, or deeply nested structures may not round-trip identically.
+- Core elements (headings, tables, text formatting, code blocks, lists, and Mermaid diagrams) are fully supported and preserve layout.
 
-## Development
+---
 
-```bash
-npm install
-npm run watch         # incremental dev build with file watching
-npm run install-local # production build + install into local VS Code
-```
+## 📄 License
 
-Press **F5** in VS Code (with this project open) to launch an Extension Development Host for rapid iteration — no `.vsix` install needed.
-
-## Caveats
-
-Markdown serialization is lossy — complex syntax like raw HTML, footnotes, or deeply nested structures may not round-trip perfectly. Standard content (headings, lists, bold, italic, code blocks, tables, mermaid diagrams) works correctly.
+This extension is licensed under the [MIT License](LICENSE).
