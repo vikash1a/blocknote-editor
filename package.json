@@ -4,6 +4,7 @@
   "description": "A Notion-like markdown editor for VS Code",
   "version": "0.0.9",
   "publisher": "vikashsinha",
+  "license": "MIT",
   "engines": {
     "vscode": "^1.85.0"
   },
